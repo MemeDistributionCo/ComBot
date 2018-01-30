@@ -1,5 +1,7 @@
 package com.mdc.combot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.login.LoginException;
@@ -22,7 +24,7 @@ public class ComBot {
 	private final String botToken;
 	private final String version = "0.0.1";
 	private JDA jdaInstance;
-	private Set<Listener> listeners;
+	private Map<Event, Set<Listener>> listeners;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be logged in.
@@ -31,6 +33,7 @@ public class ComBot {
 	public ComBot(String botToken) {
 		this.botToken = botToken;
 		jdaInstance = null;
+		listeners = new HashMap<Event,Set<Listener>>();
 	}
 	
 	/**
@@ -67,9 +70,37 @@ public class ComBot {
 		return this.jdaInstance;
 	}
 	
-	public void login() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException {
+	/**
+	 * Start up the bot. Loads plugins, logs in
+	 */
+	public void start() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException {
+		loadPlugins();
+		login();
+	}
+	
+	protected void loadPlugins() {
+		//TODO This
+	}
+	
+	protected void unloadPlugins() {
+		//TODO This
+	}
+	
+	protected void logout() {
+		//TODO This
+	}
+	
+	/**
+	 * Shut down the bot. Unload plugins, logout.
+	 */
+	public void shutdown() {
+		unloadPlugins();
+		logout();
+	}
+	
+	
+	protected void login() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException {
 		jdaInstance = new JDABuilder(AccountType.BOT).setToken(botToken).buildBlocking();
-		
 	}
 	
 	
