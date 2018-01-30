@@ -1,0 +1,21 @@
+plugins {
+  id 'java'
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+mainClassName = 'com.mdc.combot.ComBot'
+
+version '0.0.1'
+
+sourceCompatibility = 1.8
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile 'net.dv8tion:JDA:3.5.0_327'
+}
+
+compileJava.options.encoding = 'UTF-8'
