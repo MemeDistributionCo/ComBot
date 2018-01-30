@@ -1,6 +1,7 @@
 package com.mdc.combot.event;
 
 import java.util.Calendar;
+
 import java.util.Date;
 
 /**
@@ -48,7 +49,7 @@ public abstract class Event {
 	}
 	
 	public final void enactEvent() {
-		if(!this.isCancelled()) {
+		if(!this.isCancelled() && !this.completed) {
 			run();
 			this.completed = true;
 		}

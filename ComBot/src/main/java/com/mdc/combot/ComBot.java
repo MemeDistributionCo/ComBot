@@ -1,13 +1,18 @@
 package com.mdc.combot;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 
+import com.mdc.combot.command.Command;
 import com.mdc.combot.event.Event;
-import com.mdc.combot.listener.Listener;
+import com.mdc.combot.listener.DefaultCommandListener;
+import com.mdc.combot.listener.RegisteredEventListener;
 
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -24,7 +29,9 @@ public class ComBot {
 	private final String botToken;
 	private final String version = "0.0.1";
 	private JDA jdaInstance;
-	private Map<Event, Set<Listener>> listeners;
+	//Please only put events in this
+	private Map<Class<?>, Set<RegisteredEventListener>> listeners;
+	private Set<Command> commands;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be logged in.
@@ -33,7 +40,12 @@ public class ComBot {
 	public ComBot(String botToken) {
 		this.botToken = botToken;
 		jdaInstance = null;
-		listeners = new HashMap<Event,Set<Listener>>();
+		listeners = new HashMap<Class<?>,Set<RegisteredEventListener>>();
+		commands = new HashSet<Command>();
+	}
+	
+	public void registerCommand(Command c) {
+		this.commands.add(c);
 	}
 	
 	/**
@@ -41,9 +53,15 @@ public class ComBot {
 	 * @param e The event for this bot
 	 */
 	public void invokeEvent(Event e) {
-		//Notify listeners
-		//Enact event
-		//TODO Listeners should be done first...
+		Set<RegisteredEventListener> listenerSet = listeners.get(e.getClass());
+		for(RegisteredEventListener l : listenerSet) {
+			try {
+				l.getMethod().invoke(l.getListenerInstance(), e);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+				e1.printStackTrace();
+			}
+		}
+		e.enactEvent();
 	}
 	
 	/**
@@ -86,22 +104,23 @@ public class ComBot {
 		//TODO This
 	}
 	
-	protected void logout() {
-		//TODO This
-	}
-	
 	/**
 	 * Shut down the bot. Unload plugins, logout.
 	 */
 	public void shutdown() {
 		unloadPlugins();
-		logout();
+		
 	}
 	
 	
 	protected void login() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException {
 		jdaInstance = new JDABuilder(AccountType.BOT).setToken(botToken).buildBlocking();
+		if(jdaInstance != null) {
+			jdaInstance.addEventListener(new DefaultCommandListener(this));
+		}
 	}
 	
-	
+	public Collection<Command> getRegisteredCommands() {
+		return this.commands;
+	}
 }
