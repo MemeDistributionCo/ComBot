@@ -57,3 +57,6 @@ VersionPlugin:
   ReferencedLibraries:
     ComBot.vx.x.x.jar
 ```
+
+### Note
+Plugin creators are responsible for properly enabling and disabling their plugin.
