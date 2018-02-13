@@ -16,6 +16,10 @@ A discord bot which allows the use of external plugins to be installed.
 - Plugin distribution
 
 
+## How to add a plugin:
+
+Navigate to your `~/ComBot/plugins/` folder and add place any plugins you want there. Restarting the bot will enable of the plugins in the folder.
+
 A simple plugin example:
 ```Java
 package my.pack.age;
