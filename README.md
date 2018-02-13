@@ -14,6 +14,7 @@ A discord bot which allows the use of external plugins to be installed. This bot
 - Built in permission system
 - Sync permissions with roles
 - Plugin distribution
+- Restart bot from Discord
 
 
 ## How to add a plugin:
