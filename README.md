@@ -1,5 +1,5 @@
 # ComBot
-A discord bot which allows the use of external plugins to be installed.
+A discord bot which allows the use of external plugins to be installed. This bot uses the [JDA](https://github.com/DV8FromTheWorld/JDA) wrapper created by [DV8FromTheWorld](https://github.com/DV8FromTheWorld)
 
 ## Plugin Downloads
 
