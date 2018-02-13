@@ -1,6 +1,21 @@
 # ComBot
 A discord bot which allows the use of external plugins to be installed.
 
+## Plugin Downloads
+
+(TBD)
+
+## Features:
+- Allows users to choose what features they would like to add to their bot through the use of self contained plugins.
+- Allow creators to create plugins for public use
+
+
+## Planned Features:
+- Built in permission system
+- Sync permissions with roles
+- Plugin distribution
+
+
 A simple plugin example:
 ```Java
 package my.pack.age;
