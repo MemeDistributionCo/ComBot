@@ -13,7 +13,11 @@ public class ShutdownCommand implements Command {
 
 	@Override
 	public void called(ComBot bot, MessageReceivedEvent e) {
-		bot.shutdown();		
+		if(bot.memberHasPerm("bot.shutdown", e.getMember())) {
+			bot.shutdown();		
+		} else {
+			System.out.println("User tried to shutdown bot without permission");
+		}
 	}
 
 }

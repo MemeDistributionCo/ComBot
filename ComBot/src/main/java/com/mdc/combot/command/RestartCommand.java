@@ -17,7 +17,11 @@ public class RestartCommand implements Command {
 		/*
 		 * For now, just restart on call
 		 */
-		BotLauncher.restart();
+		if(bot.memberHasPerm("bot.restart", e.getMember())) {
+			BotLauncher.restart();
+		} else {
+			System.out.println("User tried to restart bot without permission");
+		}
 		//Goodbye, cruel world.
 	}
 

@@ -21,6 +21,8 @@ import javax.security.auth.login.LoginException;
 import com.mdc.combot.command.Command;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
+import com.mdc.combot.permissions.DefaultPermissionManager;
+import com.mdc.combot.permissions.PermissionsInstance;
 import com.mdc.combot.plugin.BotPlugin;
 import com.mdc.combot.util.Config;
 import com.mdc.combot.util.Util;
@@ -31,6 +33,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
@@ -47,6 +50,7 @@ public class ComBot {
 	private Set<Command> commands;
 	private Set<BotPlugin> plugins;
 	private Config config;
+	private PermissionsInstance perms;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be logged in.
@@ -58,7 +62,27 @@ public class ComBot {
 		commands = new HashSet<Command>();
 		plugins = new HashSet<BotPlugin>();
 		this.config = Config.getConfigurationInstance();
+		perms = DefaultPermissionManager.getPermissionManager();
 		registerDefaultCommands();
+	}
+	
+	/**
+	 * Change the current permissions manager
+	 * @param p The new manager
+	 */
+	public void setPermissionManager(PermissionsInstance p) {
+		this.perms = p;
+	}
+	
+	/**
+	 * Check whether the member has the specified permission.
+	 * @see PermissionsInstance#memberHasPermission(String, net.dv8tion.jda.core.entities.Member)
+	 * @param permission The permission
+	 * @param m The member
+	 * @return True, if it does.
+	 */
+	public boolean memberHasPerm(String permission, Member m) {
+		return perms.memberHasPermission(permission, m);
 	}
 	
 	/**
