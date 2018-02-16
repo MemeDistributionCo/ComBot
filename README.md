@@ -8,13 +8,11 @@ A discord bot which allows the use of external plugins to be installed. This bot
 ## Features:
 - Allows users to choose what features they would like to add to their bot through the use of self contained plugins.
 - Allow creators to create plugins for public use
-
+- Built in permission system which binds permissions to users and roles. Replaceable by other plugins.
+- Restart and Shutdown bot from Discord
 
 ## Planned Features:
-- Built in permission system
-- Sync permissions with roles
 - Plugin distribution
-- Restart bot from Discord
 
 
 ## How to add a plugin:
