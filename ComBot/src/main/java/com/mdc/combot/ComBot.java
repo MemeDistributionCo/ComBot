@@ -10,6 +10,7 @@ import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -21,6 +22,7 @@ import com.mdc.combot.command.Command;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.plugin.BotPlugin;
+import com.mdc.combot.util.Config;
 import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
 import com.mdc.combot.util.exception.PluginTXTNotFoundException;
@@ -28,6 +30,8 @@ import com.mdc.combot.util.exception.PluginTXTNotFoundException;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 /**
@@ -42,6 +46,7 @@ public class ComBot {
 	private JDA jdaInstance;
 	private Set<Command> commands;
 	private Set<BotPlugin> plugins;
+	private Config config;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be logged in.
@@ -52,7 +57,25 @@ public class ComBot {
 		jdaInstance = null;
 		commands = new HashSet<Command>();
 		plugins = new HashSet<BotPlugin>();
+		this.config = Config.getConfigurationInstance();
 		registerDefaultCommands();
+	}
+	
+	/**
+	 * Sends a message to the default text channel
+	 * @param message The message to send
+	 */
+	public void sendMessage(String message) {
+		String chName = config.get("default-text-channel");
+		if(!(chName == null || chName.equals(""))) {
+			List<TextChannel> channels = jdaInstance.getTextChannelsByName(chName, false);
+			if(channels.size() > 0) {
+				TextChannel c = channels.get(0);
+				MessageBuilder mb = new MessageBuilder();
+				mb.append(message);
+				c.sendMessage(mb.build()).complete();
+			}
+		}
 	}
 	
 	
@@ -71,8 +94,15 @@ public class ComBot {
 	 * @return The prefix as a String
 	 */
 	public String getCommandPrefix() {
-		return "--";
-		//TODO Configurable
+		String cmdPrefix;
+		cmdPrefix = config.get("command-prefix");
+		if(cmdPrefix == null) {
+			cmdPrefix = "--";
+			//Default
+		}
+		
+		//I don't like how often it will have to look at the map
+		return cmdPrefix;
 	}
 	
 	public void registerCommand(Command c) {
@@ -109,6 +139,9 @@ public class ComBot {
 	public void start() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException, BotAlreadyRunningException {
 		login();
 		loadPlugins();
+		if(Boolean.parseBoolean(config.get("enable-startup-message"))) {
+			sendMessage(config.get("startup-message"));
+		}
 	}
 	
 	protected void loadPlugins() {
