@@ -1,0 +1,13 @@
+{
+    users:[
+        {userId:"place your id here",permissions:[
+            "*"
+        ]}
+    ],
+    roles:[
+        {roleName:"role name",permissions:[
+            "role permission 1",
+            "role permission 2"
+        ]}
+    ]
+}
