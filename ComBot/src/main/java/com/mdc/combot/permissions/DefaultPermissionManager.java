@@ -42,7 +42,7 @@ public class DefaultPermissionManager implements PermissionsInstance {
 		}
 		
 		JSONArray userArray = (JSONArray)j.get("users");
-		for(int i = 0; i < roleArray.length(); i++) {
+		for(int i = 0; i < userArray.length(); i++) {
 			JSONObject userPerms = (JSONObject)userArray.get(i);
 			String userId = userPerms.getString("userId");
 			JSONArray permissions = (JSONArray)userPerms.get("permissions");
