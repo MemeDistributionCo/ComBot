@@ -15,6 +15,8 @@ A discord bot which allows the use of external plugins to be installed. This bot
 ## Planned Features:
 - Plugin distribution
 
+## Docs
+[Docs v0.9.2](https://memedistributionco.github.io/docs/ComBot/v0.9.2/index.html)
 
 ## How to add a plugin:
 
