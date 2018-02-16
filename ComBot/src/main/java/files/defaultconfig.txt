@@ -1,0 +1,4 @@
+command-prefix:~
+enable-startup-message:true
+startup-message:It's ya boi back at it again
+default-text-channel:all
