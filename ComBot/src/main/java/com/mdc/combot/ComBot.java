@@ -158,7 +158,12 @@ public class ComBot {
 	}
 	
 	/**
-	 * Start up the bot. Loads plugins, logs in
+	 * Starts the bot, loads plugins
+	 * @throws LoginException Please
+	 * @throws IllegalArgumentException Know
+	 * @throws InterruptedException What
+	 * @throws RateLimitedException These
+	 * @throws BotAlreadyRunningException Are
 	 */
 	public void start() throws LoginException,IllegalArgumentException, InterruptedException, RateLimitedException, BotAlreadyRunningException {
 		login();

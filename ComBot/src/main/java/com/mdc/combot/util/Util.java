@@ -120,7 +120,7 @@ public class Util {
 	}
 	
 	/**
-	 * Attempts to read the token from the {@link com.mdc.bot.util.Util#TOKEN_FILE_PATH Token File}. If the file didn't exist previously, it is created and a {@link TokenNotFoundException} is thrown.
+	 * Attempts to read the token from the {@link com.mdc.combot.util.Util#TOKEN_FILE_PATH Token File}. If the file didn't exist previously, it is created and a {@link TokenNotFoundException} is thrown.
 	 * @return A String of the token used for the bot
 	 * @throws IOException Failed IO action
 	 * @throws TokenNotFoundException Token file does not exist
