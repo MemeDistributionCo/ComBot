@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import javax.security.auth.login.LoginException;
 
 import com.mdc.combot.command.Command;
+import com.mdc.combot.command.RestartCommand;
+import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.plugin.BotPlugin;
 import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
@@ -50,6 +52,18 @@ public class ComBot {
 		jdaInstance = null;
 		commands = new HashSet<Command>();
 		plugins = new HashSet<BotPlugin>();
+		registerDefaultCommands();
+	}
+	
+	
+	private void registerDefaultCommands() {
+		RestartCommand restartCmd = new RestartCommand();
+		ShutdownCommand shutdownCmd = new ShutdownCommand();
+		
+		
+		
+		this.registerCommand(restartCmd);
+		this.registerCommand(shutdownCmd);
 	}
 	
 	/**
@@ -167,10 +181,12 @@ public class ComBot {
 	 * Shut down the bot. Unload plugins, logout.
 	 */
 	public void shutdown() {
+		System.out.println("Shutdown started");
 		unloadPlugins();
 		jdaInstance.shutdown();
 		jdaInstance = null;
 		ComBot.setBot(null);
+		System.out.println("Shutdown complete");
 	}
 	
 	

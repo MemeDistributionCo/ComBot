@@ -13,8 +13,26 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 public class BotLauncher {
 
+	private static ComBot bot;
+	private static String token;
+
 	public static void main(String[] args) {
-		String token;
+		readToken();
+		startBot();
+	}
+	
+	
+	public static void startBot() {
+		bot = new ComBot(token);
+		try {
+			bot.start();
+		} catch (LoginException | IllegalArgumentException | InterruptedException | RateLimitedException | BotAlreadyRunningException e) {
+			e.printStackTrace();
+			System.out.println("Unable to log in! Yikes! (Invalid token?)");
+		}
+	}
+	
+	public static void readToken() {
 		try {
 			token = Util.readToken();
 		} catch (IOException e) {
@@ -28,15 +46,16 @@ public class BotLauncher {
 			System.exit(1);
 			return;
 		}
-		
-		ComBot newBot = new ComBot(token);
-		
-		try {
-			newBot.start();
-		} catch (LoginException | IllegalArgumentException | InterruptedException | RateLimitedException | BotAlreadyRunningException e) {
-			e.printStackTrace();
-			System.out.println("Unable to log in! Yikes! (Invalid token?)");
+	}
+	
+	public static void restart() {
+		if(bot!=null) {
+			bot.shutdown();
+			bot = null;
 		}
+		readToken();
+		startBot();
+		//I'm nervous that restarting a million times will cause a stack overflow
 	}
 	
 }
