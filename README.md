@@ -6,8 +6,8 @@ A discord bot which allows the use of external plugins. This bot uses the [JDA](
 (TBD)
 
 ## Features:
-- Allows users to choose what features they would like to add to their bot through the use of self contained plugins.
-- Allow creators to create plugins for public use
+- Choose what features you want added to your bot through the use of user created Plugins.
+- Users can create and distribute plugins for public use
 - Built in permission system which binds permissions to users and roles. Replaceable by other plugins.
 - Restart and Shutdown bot from Discord
 - Configuration file
