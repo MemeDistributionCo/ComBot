@@ -45,7 +45,7 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 public class ComBot {
 
 	private final String botToken;
-	private final String version = "0.1.0";
+	private final String version = "0.9.2";
 	private JDA jdaInstance;
 	private Set<Command> commands;
 	private Set<BotPlugin> plugins;
