@@ -15,12 +15,23 @@ A discord bot which allows the use of external plugins. This bot uses the [JDA](
 ## Planned Features:
 - Plugin distribution
 
+## Permissions?
+[Read about permissions here](https://github.com/MemeDistributionCo/ComBot/wiki/Permissions)
+
+## Commands
+- `~restart`
+- `~shutdown`
+
 ## Docs
 [Docs v0.9.2](https://memedistributionco.github.io/docs/ComBot/v0.9.2/index.html)
 
 ## How to add a plugin:
 
 Navigate to your `~/ComBot/plugins/` folder and add place any plugins you want there. Restarting the bot will enable of the plugins in the folder.
+
+## How to make a plugin
+
+You can either look at the example below, or look at the [wiki pages](https://github.com/MemeDistributionCo/ComBot/wiki)
 
 A simple plugin example:
 ```Java
