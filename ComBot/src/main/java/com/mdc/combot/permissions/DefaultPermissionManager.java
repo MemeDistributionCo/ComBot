@@ -65,7 +65,6 @@ public class DefaultPermissionManager implements PermissionsInstance {
 				Set<String> userPerms = userIdPermissions.get(m.getUser().getId());
 				for(String s : permSet) {
 					permSub += s;
-					System.out.println(permSub + "  " + permSub + ".*");
 					if(userPerms.contains(permSub+".*")) {
 						return true;
 					}
@@ -85,7 +84,6 @@ public class DefaultPermissionManager implements PermissionsInstance {
 				Set<String> rolePerms = rolePermissions.get(userRole.getName());
 				for(String s : permSet) {
 					permSub += s;
-					System.out.println(permSub + "  " + permSub + ".*");
 					if(rolePerms.contains(permSub+".*")) {
 						return true;
 					}
