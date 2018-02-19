@@ -56,10 +56,20 @@ public class DefaultPermissionManager implements PermissionsInstance {
 	
 	@Override
 	public boolean memberHasPermission(String perm, Member m) {
-		
 		if(userIdPermissions.get(m.getUser().getId()) != null) {
 			if(userIdPermissions.get(m.getUser().getId()).contains(perm) || userIdPermissions.get(m.getUser().getId()).contains("*")) {
 				return true;
+			} else {
+				String[] permSet = perm.split("\\.");
+				String permSub = "";
+				Set<String> userPerms = userIdPermissions.get(m.getUser().getId());
+				for(String s : permSet) {
+					permSub += s;
+					System.out.println(permSub + "  " + permSub + ".*");
+					if(userPerms.contains(permSub+".*")) {
+						return true;
+					}
+				}
 			}
 		}
 		
@@ -69,6 +79,17 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			}
 			if(rolePermissions.get(userRole.getName()).contains(perm) || rolePermissions.get(userRole.getName()).contains("*")) {
 				return true;
+			} else {
+				String[] permSet = perm.split("\\.");
+				String permSub = "";
+				Set<String> rolePerms = rolePermissions.get(userRole.getName());
+				for(String s : permSet) {
+					permSub += s;
+					System.out.println(permSub + "  " + permSub + ".*");
+					if(rolePerms.contains(permSub+".*")) {
+						return true;
+					}
+				}
 			}
 		}
 
