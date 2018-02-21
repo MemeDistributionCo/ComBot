@@ -16,9 +16,6 @@ It's available to use [here](https://memedistributionco.github.io/combot/)
 - Restart and Shutdown bot from Discord
 - Configuration file
 
-## Planned Features:
-- Plugin distribution
-
 ## Permissions?
 [Read about permissions here](https://github.com/MemeDistributionCo/ComBot/wiki/Permissions)
 
