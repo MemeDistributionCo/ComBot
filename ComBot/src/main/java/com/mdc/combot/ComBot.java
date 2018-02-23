@@ -312,6 +312,7 @@ public class ComBot {
 		for(Guild g : getJDA().getGuilds()) {
 			if(!Config.guildHasConfig(g)) {
 				Config.createConfigForGuild(g);
+				this.multiserverConfig.put(g.getId(), Config.getConfigForGuild(g));
 			}
 		}
 	}

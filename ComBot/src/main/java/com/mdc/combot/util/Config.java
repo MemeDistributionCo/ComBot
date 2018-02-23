@@ -86,6 +86,14 @@ public class Config {
 		}
 	}
 	
+	public static Config getConfigForGuild(Guild g) {
+		if(!Config.guildHasConfig(g)) {
+			return null;
+		}
+		File f = new File(Util.BOT_SETTINGS_PATH + File.separatorChar + "multiserver-config" + File.separatorChar + g.getId() + ".txt");
+		return readConfigFromFile(f);
+	}
+	
 	/**
 	 * Checks whether this guilds <code>guildid.txt</code> config file exists in <code>./multiserver-config/</code>
 	 * @param g The guild to check
