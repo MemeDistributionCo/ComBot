@@ -1,6 +1,8 @@
 # ComBot
 A discord bot which allows the use of external plugins. This bot uses the [JDA](https://github.com/DV8FromTheWorld/JDA) wrapper created by [DV8FromTheWorld](https://github.com/DV8FromTheWorld)
 
+![Combot-image](https://memedistributionco.github.io/img/combot.png)
+
 ## Plugin Downloads
 
 The plugin site is a huge work in progress, you can contribute to it [here](https://github.com/MemeDistributionCo/CombotPluginSite).
