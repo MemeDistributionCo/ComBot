@@ -58,7 +58,8 @@ public class ComBot {
 	private Map<String, Config> multiserverConfig;
 	private PermissionsInstance perms;
 	private boolean multiServer;
-
+	private DefaultCommandListener cmdListener;
+	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
 	 * logged in.
@@ -315,6 +316,7 @@ public class ComBot {
 				this.multiserverConfig.put(g.getId(), Config.getConfigForGuild(g));
 			}
 		}
+		this.cmdListener.updatePrefix();
 	}
 
 	protected void loadPlugins() {
@@ -400,12 +402,13 @@ public class ComBot {
 		ComBot.setBot(null);
 		System.out.println("Shutdown complete");
 	}
-
+	
 	private void login() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException,
 			BotAlreadyRunningException {
 		jdaInstance = new JDABuilder(AccountType.BOT).setToken(botToken).buildBlocking();
 		if (jdaInstance != null) {
-			jdaInstance.addEventListener(new DefaultCommandListener(this));
+			cmdListener = new DefaultCommandListener(this);
+			jdaInstance.addEventListener(cmdListener);
 			if (!ComBot.setBot(this)) {
 				throw new BotAlreadyRunningException();
 			}

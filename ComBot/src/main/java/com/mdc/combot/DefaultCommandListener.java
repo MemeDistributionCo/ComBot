@@ -33,6 +33,9 @@ public class DefaultCommandListener extends ListenerAdapter {
 			currentPrefix = this.prefix;
 		} else {
 			currentPrefix = this.prefixMap.get(e.getGuild().getId());
+			if(currentPrefix == null) {
+				currentPrefix = this.prefix;
+			}
 		}
 		if(msg.contains(currentPrefix)) {
 			String msgWithoutCmdPrefix = msg.substring(currentPrefix.length());
@@ -62,14 +65,16 @@ public class DefaultCommandListener extends ListenerAdapter {
 	
 	
 	public void updatePrefix() {
+		prefix = b.getCommandPrefix((Guild)null);
+
+		prefixMap = new HashMap<String,String>();
+		for(String c : b.getGuildSpecificConfig().keySet()) {
+			prefixMap.put(c, b.getGuildSpecificConfig().get(c).get("command-prefix"));
+		}
+		
 		if(!b.isMultiServerOn()) {
-			prefix = b.getCommandPrefix((Guild)null);
 			this.singlePrefix = true;
 		} else {
-			prefixMap = new HashMap<String,String>();
-			for(String c : b.getGuildSpecificConfig().keySet()) {
-				prefixMap.put(c, b.getGuildSpecificConfig().get(c).get("command-prefix"));
-			}
 			this.singlePrefix = false;
 		}
 	}
