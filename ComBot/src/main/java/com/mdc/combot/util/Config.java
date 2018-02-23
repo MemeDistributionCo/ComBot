@@ -47,6 +47,24 @@ public class Config {
 		}
 	}
 	
+	
+	private static void createdefaultSubConfigFile(File loc) {
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(loc));
+			InputStream is = Config.class.getResourceAsStream("/files/defaultsubconfig.txt");
+			Scanner s = new Scanner(is);
+			while(s.hasNextLine()) {
+				bw.write(s.nextLine()+'\n');
+			}
+			bw.flush();
+			s.close();
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public static Config getConfigurationInstance() {
 		String path = Util.BOT_SETTINGS_PATH;
 		File configFile = new File(path + File.separatorChar + "config.txt");
@@ -117,7 +135,7 @@ public class Config {
 				e.printStackTrace();
 			}
 		}
-		createDefaultConfigFile(f);
+		Config.createdefaultSubConfigFile(f);
 	}
 
 	public static Map<String, Config> getMulticonfigMap() {
