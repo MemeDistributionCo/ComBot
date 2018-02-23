@@ -1,6 +1,7 @@
 package com.mdc.combot.permissions;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -93,6 +94,7 @@ public class DefaultPermissionManager implements PermissionsInstance {
 
 		return false;
 	}
+	
 
 	private static void createDefaultPermissionFile(File loc) {
 		Scanner s = new Scanner(DefaultPermissionManager.class.getResourceAsStream("/files/defaultpermissions.json"));
@@ -109,11 +111,35 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public static PermissionsInstance getPermissionManager() {
+	/**
+	 * Map of guild ids and their associated permissions.
+	 * @return A map containing all guild permissions located in <code>settings/multiserver-permissions</code>
+	 */
+	public static Map<String,PermissionsInstance> getPermissionMap() {
 		String path = Util.BOT_SETTINGS_PATH;
-		File permFile = new File(path + File.separatorChar + "permissions.json");
+		File permissionsDirectory = new File(path + File.separatorChar + "multiserver-permissions");
+		if(!permissionsDirectory.exists()) {
+			permissionsDirectory.mkdirs();
+			
+			return new HashMap<String,PermissionsInstance>();
+		}
+
+		Map<String,PermissionsInstance> multiMap = new HashMap<String,PermissionsInstance>();
+		for(File confFile : permissionsDirectory.listFiles()) {
+			if(!confFile.getName().endsWith(".json")) {
+				continue;
+			}
+			long guildId = Long.parseLong(confFile.getName().replace(".json", ""));
+			PermissionsInstance permInstance = readPermissionsFile(confFile);
+			if(permInstance!=null) {
+				multiMap.put(""+guildId, permInstance);
+			}
+		}
+				
+		return multiMap;
+	}
+	
+	private static PermissionsInstance readPermissionsFile(File permFile) {
 		if(!permFile.exists()) {
 			try {
 				permFile.createNewFile();
@@ -144,5 +170,16 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			pi = null;
 		}
 		return pi;
+	}
+	
+	public static PermissionsInstance getPermissionManager() {
+		String path = Util.BOT_SETTINGS_PATH;
+		File permFile = new File(path + File.separatorChar + "permissions.json");
+		return readPermissionsFile(permFile);
+	}
+
+	public static PermissionsInstance getPermissionForGuild(String id) {
+		return readPermissionsFile(new File(Util.BOT_SETTINGS_PATH + File.separatorChar + "multiserver-permissions" + File.separatorChar + id + ".json"));
+		
 	}
 }

@@ -68,8 +68,10 @@ public class DefaultCommandListener extends ListenerAdapter {
 		prefix = b.getCommandPrefix((Guild)null);
 
 		prefixMap = new HashMap<String,String>();
-		for(String c : b.getGuildSpecificConfig().keySet()) {
-			prefixMap.put(c, b.getGuildSpecificConfig().get(c).get("command-prefix"));
+		if(b.getGuildSpecificConfig() != null) {
+			for(String c : b.getGuildSpecificConfig().keySet()) {
+				prefixMap.put(c, b.getGuildSpecificConfig().get(c).get("command-prefix"));
+			}
 		}
 		
 		if(!b.isMultiServerOn()) {

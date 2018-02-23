@@ -57,6 +57,7 @@ public class ComBot {
 	private Config config;
 	private Map<String, Config> multiserverConfig;
 	private PermissionsInstance perms;
+	private Map<String,PermissionsInstance> multiserverPerms;
 	private boolean multiServer;
 	private DefaultCommandListener cmdListener;
 	
@@ -79,9 +80,11 @@ public class ComBot {
 		if (this.config.get("enable-multiserver-config") != null
 				&& Boolean.parseBoolean(this.config.get("enable-multiserver-config"))) {
 			this.multiserverConfig = Config.getMulticonfigMap();
+			this.multiserverPerms = DefaultPermissionManager.getPermissionMap();
 			multiServer = true;
 		} else {
 			this.multiserverConfig = null;
+			this.multiserverPerms = null;
 			multiServer = false;
 		}
 	}
@@ -105,13 +108,37 @@ public class ComBot {
 	}
 
 	/**
-	 * Change the current permissions manager
+	 * Change the current permissions manager. If {@link #isMultiServerOn()} evalutes to true, this will have no effect.
 	 * 
 	 * @param p
 	 *            The new manager
+	 * @see #setPermissionManager(PermissionsInstance, String)
 	 */
+	@Deprecated
 	public void setPermissionManager(PermissionsInstance p) {
 		this.perms = p;
+	}
+	
+	/**
+	 * Set the permission manager for the provided guild. If {@link #isMultiServerOn()} evaluates to false, this will set the default permission manager.
+	 * @param p PermissionsInstance
+	 * @param g The guild
+	 */
+	public void setPermissionManager(PermissionsInstance p, Guild g) {
+		setPermissionManager(p,g.getId());
+	}
+	
+	/**
+	 * Set the permission manager for the provided guild. If {@link #isMultiServerOn()} evaluates to false, this will set the default permission manager to the provided instance.
+	 * @param p Permissions Instance
+	 * @param guildID Guild id
+	 */
+	public void setPermissionManager(PermissionsInstance p, String guildID) {
+		if(this.multiServer) {
+			this.multiserverPerms.put(guildID, p);
+		} else {
+			this.perms = p;
+		}
 	}
 
 	/**
@@ -126,7 +153,19 @@ public class ComBot {
 	 * @return True, if it does.
 	 */
 	public boolean memberHasPerm(String permission, Member m) {
-		return perms.memberHasPermission(permission, m);
+		if(!this.multiServer) {
+			return perms.memberHasPermission(permission, m);
+		} else {
+			PermissionsInstance p = multiserverPerms.get(m.getGuild().getId());
+			if(p != null) {
+				return multiserverPerms.get(m.getGuild().getId()).memberHasPermission(permission, m);
+			} else {
+				PermissionsInstance pm = DefaultPermissionManager.getPermissionForGuild(m.getGuild().getId());
+				this.multiserverPerms.put(m.getGuild().getId(), pm);
+				return pm.memberHasPermission(permission, m);
+			}
+			
+		}
 	}
 
 	/**
