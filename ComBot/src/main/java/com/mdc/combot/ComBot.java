@@ -259,7 +259,7 @@ public class ComBot {
 	 * @return The command prefix for this guild
 	 */
 	public String getCommandPrefix(Guild g) {
-		if(g == null) {
+		if(g == null || !this.multiServer) {
 			return getCommandPrefix();
 		} else {
 			String cmdPrefix;
