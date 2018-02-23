@@ -1,4 +1,15 @@
+#Prefix to use for commands
 command-prefix:~
-enable-startup-message:true
-startup-message:It's ya boi back at it again
+
+#Should the bot send a message on startup?
+enable-startup-message:false
+
+#If the startup message is enabled, what should it be?
+startup-message:ComBot loaded!
+
+#What should the bot's default text channel be?
 default-text-channel:all
+
+#If this is the main config file for the bot, should the bot use server specific config files instead?
+#If this is set to true, everything in this file besides this will be ignored. If this isn't the main config file, this will have no effect.
+enable-multiserver-config:false
