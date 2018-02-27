@@ -9,7 +9,3 @@ startup-message:ComBot loaded!
 
 #What should the bot's default text channel be?
 default-text-channel:all
-
-#Should the bot use server specific config files instead?
-#If this is set to true, everything in this file besides this will be ignored.
-enable-multiserver-config:false
