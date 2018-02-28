@@ -1,10 +1,13 @@
 package com.mdc.combot;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import com.mdc.combot.command.Command;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -13,15 +16,29 @@ public class DefaultCommandListener extends ListenerAdapter {
 
 	private ComBot b;
 	
+	private Map<String,String> prefixMap;
+	private String prefix;
+	private boolean singlePrefix;
+	
 	public DefaultCommandListener(ComBot b) {
 		this.b = b;
+		updatePrefix();
 	}
 	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
 		String msg = e.getMessage().getContentRaw();
-		if(msg.contains(b.getCommandPrefix())) {
-			String msgWithoutCmdPrefix = msg.substring(b.getCommandPrefix().length());
+		String currentPrefix;
+		if(singlePrefix) {
+			currentPrefix = this.prefix;
+		} else {
+			currentPrefix = this.prefixMap.get(e.getGuild().getId());
+			if(currentPrefix == null) {
+				currentPrefix = this.prefix;
+			}
+		}
+		if(msg.contains(currentPrefix)) {
+			String msgWithoutCmdPrefix = msg.substring(currentPrefix.length());
 			if(msgWithoutCmdPrefix.length() > 0) {
 				String label;
 				if(msgWithoutCmdPrefix.indexOf(' ') != -1) {
@@ -31,7 +48,7 @@ public class DefaultCommandListener extends ListenerAdapter {
 				}
 				
 				Queue<Command> commandsCalled = new LinkedList<Command>();
-				if(e.getMessage().getContentRaw().startsWith(b.getCommandPrefix())) {
+				if(e.getMessage().getContentRaw().startsWith(currentPrefix)) {
 					for(Command c : b.getRegisteredCommands()) {
 						if(c.getLabel().equalsIgnoreCase(label)) {
 							commandsCalled.add(c);
@@ -44,6 +61,24 @@ public class DefaultCommandListener extends ListenerAdapter {
 			}
 		}
 		
+	}
+	
+	
+	public void updatePrefix() {
+		prefix = b.getCommandPrefix((Guild)null);
+
+		prefixMap = new HashMap<String,String>();
+		if(b.getGuildSpecificConfig() != null) {
+			for(String c : b.getGuildSpecificConfig().keySet()) {
+				prefixMap.put(c, b.getGuildSpecificConfig().get(c).get("command-prefix"));
+			}
+		}
+		
+		if(!b.isMultiServerOn()) {
+			this.singlePrefix = true;
+		} else {
+			this.singlePrefix = false;
+		}
 	}
 	
 	/**

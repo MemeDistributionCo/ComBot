@@ -1,6 +1,7 @@
 package com.mdc.combot.permissions;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,6 +26,7 @@ public class DefaultPermissionManager implements PermissionsInstance {
 
 	private Map<String,Set<String>> rolePermissions;
 	private Map<String,Set<String>> userIdPermissions;
+	private Set<String> everyonePermissions;
 	
 	private DefaultPermissionManager(JSONObject j) {
 		rolePermissions = new HashMap<String,Set<String>>();
@@ -52,6 +54,21 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			}
 			userIdPermissions.put(userId, perms);
 		}
+		
+		try {
+			JSONArray everyoneArray = (JSONArray)j.get("everyone");
+			Set<String> perms = new HashSet<String>();
+			for(int i = 0; i < everyoneArray.length(); i++) {
+				perms.add(everyoneArray.getString(i));
+			}
+			everyonePermissions = perms;
+		} catch (JSONException e) {
+			//Missing @everyone
+			e.printStackTrace();
+			everyonePermissions = new HashSet<String>();
+			System.out.println("You seem to be missing permissions for @everyone. This isn't a problem, but to avoid this message in the future just add an empty 'everyone' array on the same level as 'roles' and 'users'.");
+		}
+		
 	}
 	
 	@Override
@@ -60,14 +77,8 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			if(userIdPermissions.get(m.getUser().getId()).contains(perm) || userIdPermissions.get(m.getUser().getId()).contains("*")) {
 				return true;
 			} else {
-				String[] permSet = perm.split("\\.");
-				String permSub = "";
-				Set<String> userPerms = userIdPermissions.get(m.getUser().getId());
-				for(String s : permSet) {
-					permSub += s;
-					if(userPerms.contains(permSub+".*")) {
-						return true;
-					}
+				if(evaluatePermission(perm,userIdPermissions.get(m.getUser().getId()))) {
+					return true;
 				}
 			}
 		}
@@ -79,20 +90,52 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			if(rolePermissions.get(userRole.getName()).contains(perm) || rolePermissions.get(userRole.getName()).contains("*")) {
 				return true;
 			} else {
-				String[] permSet = perm.split("\\.");
-				String permSub = "";
-				Set<String> rolePerms = rolePermissions.get(userRole.getName());
-				for(String s : permSet) {
-					permSub += s;
-					if(rolePerms.contains(permSub+".*")) {
-						return true;
-					}
+				if(evaluatePermission(perm, rolePermissions.get(userRole.getName()))) {
+					return true;
+				}
+			}
+		}
+		
+		if(everyonePermissions.contains(perm) || everyonePermissions.contains("*")) {
+			return true;
+		} else {
+			for(String checkedPermission : everyonePermissions) {
+				if(evaluatePermission(perm, checkedPermission)) {
+					return true;
 				}
 			}
 		}
 
 		return false;
 	}
+	
+	private boolean evaluatePermission(String assignedPermission, Set<String> givenPermissions) {
+		String[] permSet = assignedPermission.split("\\.");
+		String permSub = "";
+		Set<String> rolePerms = givenPermissions;
+		for(String s : permSet) {
+			permSub += s;
+			if(rolePerms.contains(permSub+".*")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean evaluatePermission(String assignedPermission, String givenPermission) {
+		String[] permSet = assignedPermission.split("\\.");
+		String permSub = "";
+		for(String s : permSet) {
+			permSub+=s;
+			if(givenPermission.equalsIgnoreCase(permSub+".*")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	
 
 	private static void createDefaultPermissionFile(File loc) {
 		Scanner s = new Scanner(DefaultPermissionManager.class.getResourceAsStream("/files/defaultpermissions.json"));
@@ -109,11 +152,35 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public static PermissionsInstance getPermissionManager() {
+	/**
+	 * Map of guild ids and their associated permissions.
+	 * @return A map containing all guild permissions located in <code>settings/multiserver-permissions</code>
+	 */
+	public static Map<String,PermissionsInstance> getPermissionMap() {
 		String path = Util.BOT_SETTINGS_PATH;
-		File permFile = new File(path + File.separatorChar + "permissions.json");
+		File permissionsDirectory = new File(path + File.separatorChar + "multiserver-permissions");
+		if(!permissionsDirectory.exists()) {
+			permissionsDirectory.mkdirs();
+			
+			return new HashMap<String,PermissionsInstance>();
+		}
+
+		Map<String,PermissionsInstance> multiMap = new HashMap<String,PermissionsInstance>();
+		for(File confFile : permissionsDirectory.listFiles()) {
+			if(!confFile.getName().endsWith(".json")) {
+				continue;
+			}
+			long guildId = Long.parseLong(confFile.getName().replace(".json", ""));
+			PermissionsInstance permInstance = readPermissionsFile(confFile);
+			if(permInstance!=null) {
+				multiMap.put(""+guildId, permInstance);
+			}
+		}
+				
+		return multiMap;
+	}
+	
+	private static PermissionsInstance readPermissionsFile(File permFile) {
 		if(!permFile.exists()) {
 			try {
 				permFile.createNewFile();
@@ -144,5 +211,16 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			pi = null;
 		}
 		return pi;
+	}
+	
+	public static PermissionsInstance getPermissionManager() {
+		String path = Util.BOT_SETTINGS_PATH;
+		File permFile = new File(path + File.separatorChar + "permissions.json");
+		return readPermissionsFile(permFile);
+	}
+
+	public static PermissionsInstance getPermissionForGuild(String id) {
+		return readPermissionsFile(new File(Util.BOT_SETTINGS_PATH + File.separatorChar + "multiserver-permissions" + File.separatorChar + id + ".json"));
+		
 	}
 }

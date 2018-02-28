@@ -9,5 +9,9 @@
             "role permission 1",
             "role permission 2"
         ]}
+    ],
+    everyone:[
+        "default permission for everyone",
+        "another permission for everyone"
     ]
 }

@@ -1,0 +1,11 @@
+#Prefix to use for commands
+command-prefix:~
+
+#Should the bot send a message on startup?
+enable-startup-message:false
+
+#If the startup message is enabled, what should it be?
+startup-message:ComBot loaded!
+
+#What should the bot's default text channel be?
+default-text-channel:all
