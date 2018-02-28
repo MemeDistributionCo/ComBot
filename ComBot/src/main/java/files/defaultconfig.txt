@@ -13,3 +13,9 @@ default-text-channel:all
 #Should the bot use server specific config files instead?
 #If this is set to true, everything in this file besides this will be ignored.
 enable-multiserver-config:false
+
+#Should the bot check for updates? Recommended to leave this on. Update messages appear in the console
+check-update:true
+
+#Should the bot auto download the most recent version? Recommended to leave this on. I try to keep the bot as backwards compatible as possible, so there should be no issues leaving this on.
+auto-download-update:true
