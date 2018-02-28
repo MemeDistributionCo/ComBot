@@ -17,9 +17,7 @@ It's available to use [here](https://memedistributionco.github.io/combot/)
 - Built in permission system which binds permissions to users and roles. Replaceable by other plugins.
 - Restart and Shutdown bot from Discord
 - Configuration file
-
-## Planned Features:
-- Multi-server support
+- Auto Updating: The bot updates itself
 
 ## Permissions?
 [Read about permissions here](https://github.com/MemeDistributionCo/ComBot/wiki/Permissions)
@@ -29,7 +27,7 @@ It's available to use [here](https://memedistributionco.github.io/combot/)
 - `~shutdown`
 
 ## Docs
-[Docs v0.9.2](https://memedistributionco.github.io/docs/ComBot/v0.9.2/index.html)
+[Docs v1.1.0](https://memedistributionco.github.io/docs/ComBot/v1.1.0/index.html)
 
 ## How to add a plugin:
 
