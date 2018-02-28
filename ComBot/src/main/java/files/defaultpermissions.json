@@ -1,7 +1,7 @@
 {
     users:[
-        {userId:"place your id here",permissions:[
-            "*"
+        {userId:"a user id",permissions:[
+            "permission 1"
         ]}
     ],
     roles:[
@@ -9,5 +9,8 @@
             "role permission 1",
             "role permission 2"
         ]}
+    ],
+    everyone:[
+        "*"
     ]
 }
