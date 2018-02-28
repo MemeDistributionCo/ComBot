@@ -385,7 +385,7 @@ public class ComBot {
 				if (line.contains("main:")) {
 					line = line.replace("main:", "").trim();
 					URL loc = possiblePlugin.toURI().toURL();
-					URLClassLoader loader = new URLClassLoader(new URL[] { loc });
+					URLClassLoader loader = new URLClassLoader(new URL[] { loc }, Thread.currentThread().getContextClassLoader());
 					Class<?> loadedClass = loader.loadClass(line);
 					for (Class<?> i : loadedClass.getInterfaces()) {
 						if (i.getName().equals("com.mdc.combot.plugin.BotPlugin")) {
