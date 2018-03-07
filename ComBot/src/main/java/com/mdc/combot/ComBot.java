@@ -27,6 +27,7 @@ import com.mdc.combot.permissions.DefaultPermissionManager;
 import com.mdc.combot.permissions.PermissionsInstance;
 import com.mdc.combot.plugin.BotPlugin;
 import com.mdc.combot.util.Config;
+import com.mdc.combot.util.ResourceUtil;
 import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
 import com.mdc.combot.util.exception.PluginTXTNotFoundException;
@@ -400,6 +401,10 @@ public class ComBot {
 									if (entry.getName().endsWith(".class")) {
 										loader.loadClass(entry.getName().replace(".class", "").replace("/", ".")
 												.replace("\\", ".").replace(":", "."));
+									} else if (entry.getName().endsWith(".png") || entry.getName().endsWith(".jpg") || entry.getName().endsWith(".jpeg") || entry.getName().endsWith(".gif") || entry.getName().endsWith(".txt") || entry.getName().endsWith(".wav")) {
+										if(!entry.getName().endsWith("plugin.txt")) {
+											ResourceUtil.addResource(loader.getResource(entry.getName()).toString().replace(loader.getURLs()[0].toString(), "").replace("jar:!", ""), loader.getResource(entry.getName()));
+										}
 									}
 								}
 							}
