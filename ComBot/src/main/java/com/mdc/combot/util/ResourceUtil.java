@@ -10,13 +10,9 @@ public class ResourceUtil {
 	
 	public static void addResource(String resourcePath, URL realPath) {
 		resources.put(resourcePath, realPath);
-		System.out.println("adding " + resourcePath + " " + realPath);
 	}
 	
 	public static URL getResource(String resource) {
-		System.out.println("Getting " + resource);
-		URL r = resources.get(resource);
-		System.out.print("result: " + r);
 		return resources.get(resource);
 	}
 	
