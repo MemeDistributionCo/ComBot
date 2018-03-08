@@ -436,7 +436,7 @@ public class ComBot {
 	public void shutdown() {
 		System.out.println("Shutdown started");
 		unloadPlugins();
-		jdaInstance.shutdown();
+		jdaInstance.shutdownNow();
 		jdaInstance = null;
 		ComBot.setBot(null);
 		System.out.println("Shutdown complete");
