@@ -2,10 +2,14 @@ package com.mdc.combot.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 import com.mdc.combot.util.exception.TokenNotFoundException;
 
@@ -214,5 +218,35 @@ public class Util {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Get a map from a file following the simple config combot style.
+	 * Lines that start wtih a # are ignored
+	 * Any other line is scanned as a key value pair with a : as a divider.
+	 * @param f The file to load
+	 * @return A map, if possible.
+	 */
+	public static Map<String,String> mapFromFile(File f) {
+		try {
+			Map<String,String> configMap = new HashMap<String,String>();
+			
+			Scanner s = new Scanner(new FileInputStream(f));
+			while(s.hasNextLine()) {
+				String ln = s.nextLine();
+				if(ln.trim().startsWith("#") || ln.trim().equals("")) {
+					continue;
+				}
+				String key = ln.substring(0, ln.indexOf(':')).replace(" ", "");
+				String value = ln.substring(ln.indexOf(':')+1).trim();
+				configMap.put(key, value);
+			}
+			s.close();
+			return configMap;
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("[ComBot Util] Error loading " + f.getName() + ".");
+			return null;
+		}
 	}
 }
