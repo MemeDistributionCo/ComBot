@@ -1,13 +1,14 @@
 package com.mdc.combot;
 
 import java.io.BufferedReader;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -29,7 +30,6 @@ import com.mdc.combot.plugin.BotPlugin;
 import com.mdc.combot.util.Config;
 import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
-import com.mdc.combot.util.exception.PluginTXTNotFoundException;
 
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -50,7 +50,7 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 public class ComBot {
 
 	private final String botToken;
-	private final String version = "0.9.2";
+	private final String version = "1.1.1";
 	private JDA jdaInstance;
 	private Set<Command> commands;
 	private Set<BotPlugin> plugins;
@@ -363,6 +363,7 @@ public class ComBot {
 		if (!f.exists()) {
 			f.mkdirs();
 		}
+		List<String> pluginURLS = new ArrayList<String>();
 		for (String fileName : f.list(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -378,14 +379,39 @@ public class ComBot {
 				 */
 				if (pluginTxt == null) {
 					jar.close();
-					throw new PluginTXTNotFoundException(fileName);
+				} else {
+					pluginURLS.add(fileName);
+					System.out.println(fileName);
 				}
+			} catch (IOException e) {
+				//fine
+			}
+		}
+		
+		String[] pluginURLArr = new String[pluginURLS.size()];
+		pluginURLArr = pluginURLS.toArray(pluginURLArr);
+		URL[] urls = new URL[pluginURLArr.length];
+		
+		for(int i = 0; i < pluginURLArr.length; i++) {
+			File file = new File(f.getPath() + File.separatorChar + pluginURLArr[i]);
+			try {
+				urls[i] = file.toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		URLClassLoader loader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		for(URL url : urls) {
+			System.out.println(url);
+			File possiblePlugin = new File(url.getFile());
+			try {
+				JarFile jar = new JarFile(possiblePlugin);
+				ZipEntry pluginTxt = jar.getEntry("plugin.txt");
 				BufferedReader br = new BufferedReader(new InputStreamReader(jar.getInputStream(pluginTxt)));
 				String line = br.readLine();
 				if (line.contains("main:")) {
 					line = line.replace("main:", "").trim();
-					URL loc = possiblePlugin.toURI().toURL();
-					URLClassLoader loader = new URLClassLoader(new URL[] { loc }, Thread.currentThread().getContextClassLoader());
 					Class<?> loadedClass = loader.loadClass(line);
 					for (Class<?> i : loadedClass.getInterfaces()) {
 						if (i.getName().equals("com.mdc.combot.plugin.BotPlugin")) {
@@ -405,11 +431,11 @@ public class ComBot {
 							}
 						}
 					}
-					loader.close();
 				}
 				br.close();
 				jar.close();
-			} catch (IOException | PluginTXTNotFoundException e) {
+				loader.close();
+			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
