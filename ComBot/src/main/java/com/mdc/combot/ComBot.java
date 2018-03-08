@@ -381,7 +381,6 @@ public class ComBot {
 					jar.close();
 				} else {
 					pluginURLS.add(fileName);
-					System.out.println(fileName);
 				}
 			} catch (IOException e) {
 				//fine
@@ -402,8 +401,8 @@ public class ComBot {
 		}
 		
 		URLClassLoader loader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		Thread.currentThread().setContextClassLoader(loader);
 		for(URL url : urls) {
-			System.out.println(url);
 			File possiblePlugin = new File(url.getFile());
 			try {
 				JarFile jar = new JarFile(possiblePlugin);
@@ -434,7 +433,6 @@ public class ComBot {
 				}
 				br.close();
 				jar.close();
-				loader.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -462,7 +460,8 @@ public class ComBot {
 	public void shutdown() {
 		System.out.println("Shutdown started");
 		unloadPlugins();
-		jdaInstance.shutdownNow();
+		jdaInstance.removeEventListener(jdaInstance.getRegisteredListeners());
+		jdaInstance.shutdown();
 		jdaInstance = null;
 		ComBot.setBot(null);
 		System.out.println("Shutdown complete");
