@@ -28,7 +28,7 @@ public class BotLauncher {
 			bot.start();
 		} catch (LoginException | IllegalArgumentException | InterruptedException | RateLimitedException | BotAlreadyRunningException e) {
 			e.printStackTrace();
-			System.out.println("Unable to log in! Yikes! (Invalid token?)");
+			System.out.println("Unable to log in! Yikes! (Invalid token?) " + e.getMessage());
 		}
 	}
 	
@@ -42,7 +42,7 @@ public class BotLauncher {
 			return;
 		} catch (TokenNotFoundException e) {
 			System.out.println(e.getMessage());
-			System.out.println("Token file path: " + e.getTokenPath());
+			System.out.println("\nPLACE TOKEN IN THIS FILE----\n\nToken file path: " + e.getTokenPath());
 			System.exit(1);
 			return;
 		}
