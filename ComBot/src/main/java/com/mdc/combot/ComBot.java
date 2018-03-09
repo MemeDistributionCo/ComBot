@@ -18,6 +18,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.LoginException;
@@ -446,9 +447,15 @@ public class ComBot {
 												.replace("\\", ".").replace(":", "."));
 									}
 								}
+							} else {
+								Logger.getLogger("ComBot").warning("??? Implements interface but isn't a plugin.");
 							}
+						} else {
+							Logger.getLogger("ComBot").warning("!!! Implents the incorrect interface: " + jar.getName());
 						}
 					}
+				} else {
+					Logger.getLogger("ComBot").warning("Couldn't find key 'main' in plugin.txt for " + jar.getName());
 				}
 				br.close();
 				jar.close();
