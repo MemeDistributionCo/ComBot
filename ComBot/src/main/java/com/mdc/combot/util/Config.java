@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import net.dv8tion.jda.core.entities.Guild;
 
@@ -99,7 +100,7 @@ public class Config {
 			return new Config(configMap);
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Error loading " + f.getName() + " as config");
+			Logger.getLogger("ComBot").warning("Error loading " + f.getName() + " as config");
 			return null;
 		}
 	}

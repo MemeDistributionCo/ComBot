@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 import com.mdc.combot.command.Command;
 
@@ -87,7 +88,7 @@ public class DefaultCommandListener extends ListenerAdapter {
 	 */
 	@Override
 	public void onReady(ReadyEvent e) {
-		System.out.println("Login good! Logged in as " + e.getJDA().getSelfUser().getName());
+		Logger.getLogger("ComBot").info("Login good! Logged in as " + e.getJDA().getSelfUser().getName());
 	}
 	
 }
