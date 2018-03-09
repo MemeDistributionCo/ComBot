@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.LoginException;
@@ -60,6 +61,7 @@ public class ComBot {
 	private Map<String,PermissionsInstance> multiserverPerms;
 	private boolean multiServer;
 	private DefaultCommandListener cmdListener;
+	private Logger logger;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
@@ -87,7 +89,9 @@ public class ComBot {
 			this.multiserverPerms = null;
 			multiServer = false;
 		}
+		logger = Logger.getLogger("ComBot");
 	}
+	
 
 	/**
 	 * Get whether the bot has multiserver config enabled
@@ -458,13 +462,13 @@ public class ComBot {
 	 * Shut down the bot. Unload plugins, logout.
 	 */
 	public void shutdown() {
-		System.out.println("Shutdown started");
+		logger.info("Shutdown started");
 		unloadPlugins();
 		jdaInstance.removeEventListener(jdaInstance.getRegisteredListeners());
 		jdaInstance.shutdown();
 		jdaInstance = null;
 		ComBot.setBot(null);
-		System.out.println("Shutdown complete");
+		logger.info("Shutdown complete");
 	}
 	
 	private void login() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException,

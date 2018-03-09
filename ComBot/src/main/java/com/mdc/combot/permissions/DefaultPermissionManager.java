@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +67,7 @@ public class DefaultPermissionManager implements PermissionsInstance {
 			//Missing @everyone
 			e.printStackTrace();
 			everyonePermissions = new HashSet<String>();
-			System.out.println("You seem to be missing permissions for @everyone. This isn't a problem, but to avoid this message in the future just add an empty 'everyone' array on the same level as 'roles' and 'users'.");
+			Logger.getLogger("ComBot").warning("You seem to be missing permissions for @everyone. This isn't a problem, but to avoid this message in the future just add an empty 'everyone' array on the same level as 'roles' and 'users'.");
 		}
 		
 	}

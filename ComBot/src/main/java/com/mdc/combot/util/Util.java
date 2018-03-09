@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.mdc.combot.util.exception.TokenNotFoundException;
 
@@ -245,7 +247,7 @@ public class Util {
 			return configMap;
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("[ComBot Util] Error loading " + f.getName() + ".");
+			Logger.getLogger("ComBot").log(Level.WARNING, "[ComBot Util] Error loading " + f.getName() + ".");
 			return null;
 		}
 	}
