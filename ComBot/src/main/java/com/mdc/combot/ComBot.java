@@ -25,6 +25,7 @@ import javax.security.auth.login.LoginException;
 import com.mdc.combot.command.Command;
 import com.mdc.combot.command.PluginInfoCommand;
 import com.mdc.combot.command.PluginListCommand;
+import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.permissions.DefaultPermissionManager;
@@ -230,12 +231,13 @@ public class ComBot {
 		ShutdownCommand shutdownCmd = new ShutdownCommand();
 		PluginListCommand plListCmd = new PluginListCommand();
 		PluginInfoCommand plInfoCmd = new PluginInfoCommand();
-		
+		PluginAddCommand plAddCmd = new PluginAddCommand();
 		
 		this.registerCommand(restartCmd);
 		this.registerCommand(shutdownCmd);
 		this.registerCommand(plListCmd);
 		this.registerCommand(plInfoCmd);
+		this.registerCommand(plAddCmd);
 	}
 
 	/**
