@@ -157,13 +157,30 @@ public class ComBot {
 			return perms.memberHasPermission(permission, m);
 		} else {
 			PermissionsInstance p = multiserverPerms.get(m.getGuild().getId());
-			if(p != null) {
-				return multiserverPerms.get(m.getGuild().getId()).memberHasPermission(permission, m);
+			if(this.config.get("inherit-base-permissions") != null && this.config.get("inherit-base-permissions").equalsIgnoreCase("true")) {
+				boolean userHasPerm = false;
+				
+				userHasPerm = perms.memberHasPermission(permission, m);
+				
+				if(p != null && !userHasPerm) {
+					return multiserverPerms.get(m.getGuild().getId()).memberHasPermission(permission, m);
+				} else if (!userHasPerm){
+					PermissionsInstance pm = DefaultPermissionManager.getPermissionForGuild(m.getGuild().getId());
+					this.multiserverPerms.put(m.getGuild().getId(), pm);
+					userHasPerm = pm.memberHasPermission(permission, m);
+				}
+				
+				return userHasPerm;
 			} else {
-				PermissionsInstance pm = DefaultPermissionManager.getPermissionForGuild(m.getGuild().getId());
-				this.multiserverPerms.put(m.getGuild().getId(), pm);
-				return pm.memberHasPermission(permission, m);
+				if(p != null) {
+					return multiserverPerms.get(m.getGuild().getId()).memberHasPermission(permission, m);
+				} else {
+					PermissionsInstance pm = DefaultPermissionManager.getPermissionForGuild(m.getGuild().getId());
+					this.multiserverPerms.put(m.getGuild().getId(), pm);
+					return pm.memberHasPermission(permission, m);
+				}
 			}
+			
 			
 		}
 	}

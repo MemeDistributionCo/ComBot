@@ -14,6 +14,11 @@ default-text-channel:all
 #If this is set to true, everything in this file besides this will be ignored.
 enable-multiserver-config:false
 
+#Should the bot include the permissions in permissions.json as a parent to server-specific permissions?
+#If you want to have a few users who have absolute control ('*') in every server, I would set this to true
+#and add your user ids to the list
+inhert-base-permissions:true
+
 #Should the bot check for updates? Recommended to leave this on. Update messages appear in the console
 check-update:true
 
