@@ -220,6 +220,22 @@ public class Util {
 		return false;
 	}
 	
+	public static Map<String,String> mapFromString(String[] lines) {
+		Map<String,String> configMap = new HashMap<String,String>();
+		
+		for(String s : lines) {
+			String ln = s;
+			if(ln.trim().startsWith("#") || ln.trim().equals("")) {
+				continue;
+			}
+			String key = ln.substring(0, ln.indexOf(':')).replace(" ", "");
+			String value = ln.substring(ln.indexOf(':')+1).trim();
+			configMap.put(key, value);
+		}
+		
+		return configMap;
+	}
+	
 	/**
 	 * Get a map from a file following the simple config combot style.
 	 * Lines that start wtih a # are ignored
