@@ -1,6 +1,5 @@
 package com.mdc.combot;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -11,9 +10,11 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -23,6 +24,9 @@ import java.util.zip.ZipEntry;
 import javax.security.auth.login.LoginException;
 
 import com.mdc.combot.command.Command;
+import com.mdc.combot.command.PluginInfoCommand;
+import com.mdc.combot.command.PluginListCommand;
+import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.permissions.DefaultPermissionManager;
@@ -54,7 +58,7 @@ public class ComBot {
 	private final String version = "1.1.1";
 	private JDA jdaInstance;
 	private Set<Command> commands;
-	private Set<BotPlugin> plugins;
+	private Map<BotPlugin,Map<String,String>> plugins;
 	private Config config;
 	private Map<String, Config> multiserverConfig;
 	private PermissionsInstance perms;
@@ -74,7 +78,7 @@ public class ComBot {
 		this.botToken = botToken;
 		jdaInstance = null;
 		commands = new HashSet<Command>();
-		plugins = new HashSet<BotPlugin>();
+		plugins = new HashMap<BotPlugin,Map<String,String>>();
 		this.config = Config.getConfigurationInstance();
 		perms = DefaultPermissionManager.getPermissionManager();
 		registerDefaultCommands();
@@ -246,9 +250,15 @@ public class ComBot {
 	private void registerDefaultCommands() {
 		RestartCommand restartCmd = new RestartCommand();
 		ShutdownCommand shutdownCmd = new ShutdownCommand();
-
+		PluginListCommand plListCmd = new PluginListCommand();
+		PluginInfoCommand plInfoCmd = new PluginInfoCommand();
+		PluginAddCommand plAddCmd = new PluginAddCommand();
+		
 		this.registerCommand(restartCmd);
 		this.registerCommand(shutdownCmd);
+		this.registerCommand(plListCmd);
+		this.registerCommand(plInfoCmd);
+		this.registerCommand(plAddCmd);
 	}
 
 	/**
@@ -428,18 +438,27 @@ public class ComBot {
 			try {
 				JarFile jar = new JarFile(possiblePlugin);
 				ZipEntry pluginTxt = jar.getEntry("plugin.txt");
-				BufferedReader br = new BufferedReader(new InputStreamReader(jar.getInputStream(pluginTxt)));
-				String line = br.readLine();
-				if (line.contains("main:")) {
-					line = line.replace("main:", "").trim();
-					Class<?> loadedClass = loader.loadClass(line);
+				Scanner br = new Scanner(new InputStreamReader(jar.getInputStream(pluginTxt)));
+				List<String> lines = new ArrayList<String>();
+				while(br.hasNextLine()) {
+					lines.add(br.nextLine());
+				}
+				
+				String[] lineArr = new String[lines.size()];
+				lineArr = lines.toArray(lineArr);
+				
+				Map<String,String> pluginTxtMap = Util.mapFromString(lineArr);
+				
+				if (pluginTxtMap.containsKey("main")) {
+					String mainClassName = pluginTxtMap.get("main");
+					Class<?> loadedClass = loader.loadClass(mainClassName);
 					for (Class<?> i : loadedClass.getInterfaces()) {
 						if (i.getName().equals("com.mdc.combot.plugin.BotPlugin")) {
 							Object instance = loadedClass.newInstance();
 							if (instance instanceof BotPlugin) {
 								BotPlugin pl = (BotPlugin) instance;
 								// Load the rest of the classes
-								plugins.add(pl);
+								plugins.put(pl,pluginTxtMap);
 								Enumeration<JarEntry> entries = jar.entries();
 								while (entries.hasMoreElements()) {
 									JarEntry entry = entries.nextElement();
@@ -448,9 +467,15 @@ public class ComBot {
 												.replace("\\", ".").replace(":", "."));
 									}
 								}
+							} else {
+								Logger.getLogger("ComBot").warning("??? Implements interface but isn't a plugin.");
 							}
+						} else {
+							Logger.getLogger("ComBot").warning("!!! Implents the incorrect interface: " + jar.getName());
 						}
 					}
+				} else {
+					Logger.getLogger("ComBot").warning("Couldn't find key 'main' in plugin.txt for " + jar.getName());
 				}
 				br.close();
 				jar.close();
@@ -464,13 +489,13 @@ public class ComBot {
 				e.printStackTrace();
 			}
 		}
-		for (BotPlugin pl : plugins) {
+		for (BotPlugin pl : plugins.keySet()) {
 			pl.enable();
 		}
 	}
 
 	protected void unloadPlugins() {
-		for (BotPlugin pl : plugins) {
+		for (BotPlugin pl : plugins.keySet()) {
 			pl.disable();
 		}
 	}
@@ -498,6 +523,10 @@ public class ComBot {
 				throw new BotAlreadyRunningException();
 			}
 		}
+	}
+	
+	public Map<BotPlugin,Map<String,String>> getPluginMap() {
+		return this.plugins;
 	}
 
 	/**
