@@ -66,6 +66,7 @@ public class ComBot {
 	private boolean multiServer;
 	private DefaultCommandListener cmdListener;
 	private Logger logger;
+	private ClassLoader previousLoader;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
@@ -94,6 +95,7 @@ public class ComBot {
 			multiServer = false;
 		}
 		logger = Logger.getLogger("ComBot");
+		previousLoader = null;
 	}
 	
 
@@ -432,6 +434,7 @@ public class ComBot {
 		}
 		
 		URLClassLoader loader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+		previousLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(loader);
 		for(URL url : urls) {
 			File possiblePlugin = new File(url.getFile());
@@ -510,6 +513,7 @@ public class ComBot {
 		jdaInstance.shutdown();
 		jdaInstance = null;
 		ComBot.setBot(null);
+		Thread.currentThread().setContextClassLoader(previousLoader);
 		logger.info("Shutdown complete");
 	}
 	
