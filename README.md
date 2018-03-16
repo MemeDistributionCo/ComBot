@@ -10,6 +10,9 @@ A discord bot which allows the use of external plugins. This bot uses the [JDA](
 ## Bot Discord
 [For more help or info, join the discord](https://discord.gg/kgpguGh)
 
+## Download
+Get the launcher [here](https://github.com/MemeDistributionCo/ComBot/releases) and read about setup help [here](https://github.com/MemeDistributionCo/ComBot/wiki)
+
 ## Features:
 - Choose what features you want added to your bot through the use of user created Plugins.
 - Users can create and distribute plugins for public use
