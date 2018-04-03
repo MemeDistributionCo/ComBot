@@ -5,11 +5,13 @@ A discord bot which allows the use of external plugins. This bot uses the [JDA](
 
 ## Plugin Downloads
 
-The plugin site is a huge work in progress, you can contribute to it [here](https://github.com/MemeDistributionCo/CombotPluginSite).
-It's available to use [here](https://memedistributionco.github.io/combot/)
+[ComBot Website](https://memedistributionco.github.io/combot/)
 
 ## Bot Discord
 [For more help or info, join the discord](https://discord.gg/kgpguGh)
+
+## Download
+Get the launcher [here](https://github.com/MemeDistributionCo/ComBot/releases) and read about setup help [here](https://github.com/MemeDistributionCo/ComBot/wiki)
 
 ## Features:
 - Choose what features you want added to your bot through the use of user created Plugins.
