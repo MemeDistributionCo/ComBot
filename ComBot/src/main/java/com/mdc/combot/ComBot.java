@@ -16,17 +16,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.LoginException;
 
 import com.mdc.combot.command.Command;
+import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.PluginInfoCommand;
 import com.mdc.combot.command.PluginListCommand;
-import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.permissions.DefaultPermissionManager;
@@ -56,16 +62,17 @@ public class ComBot {
 
 	private final String botToken;
 	private final String version = "1.2.0";
-	private JDA jdaInstance;
-	private Set<Command> commands;
-	private Map<BotPlugin,Map<String,String>> plugins;
-	private Config config;
-	private Map<String, Config> multiserverConfig;
-	private PermissionsInstance perms;
-	private Map<String,PermissionsInstance> multiserverPerms;
 	private boolean multiServer;
+	private Map<BotPlugin,Map<String,String>> plugins;
+	private Map<String, Config> multiserverConfig;
+	private Map<String,PermissionsInstance> multiserverPerms;
+	private Set<Command> commands;
+	private Config config;
+	private PermissionsInstance perms;
 	private DefaultCommandListener cmdListener;
 	private Logger logger;
+	private ScheduledExecutorService scheduler;
+	private JDA jdaInstance;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
@@ -93,9 +100,37 @@ public class ComBot {
 			this.multiserverPerms = null;
 			multiServer = false;
 		}
+		
+		//Arbitrary size
+		scheduler = Executors.newScheduledThreadPool(4);
+		
 		logger = Logger.getLogger("ComBot");
 	}
 	
+	/**
+	 * Get the Bot Scheduler.
+	 * @return The default scheduler which ComBot uses.
+	 */
+	public ScheduledExecutorService getScheduler() {
+		return this.scheduler;
+	}
+
+	/**
+	 * Schedule a task for execution after a delay in milliseconds.
+	 * @param task The task to execute
+	 * @param delayInMS The delay in milliseconds
+	 * @return The future task, or null if it is unable to be scheduled.
+	 */
+	public ScheduledFuture<?> scheduleTask(Runnable task, long delayInMS) {
+		try {
+			return scheduler.schedule(task, delayInMS, TimeUnit.MILLISECONDS);
+		} catch (NullPointerException e) {
+			logger.log(Level.WARNING, "Failed to schedule task", e);
+		} catch (RejectedExecutionException e) {
+			logger.log(Level.WARNING, "Failed to schedule task", e);
+		}
+		return null;
+	}
 
 	/**
 	 * Get whether the bot has multiserver config enabled
@@ -509,6 +544,8 @@ public class ComBot {
 		unloadPlugins();
 		jdaInstance.removeEventListener(jdaInstance.getRegisteredListeners());
 		jdaInstance.shutdown();
+		scheduler.shutdownNow();
+		logger.info("Scheduler shutdown");
 		jdaInstance = null;
 		ComBot.setBot(null);
 		logger.info("Shutdown complete");
@@ -569,6 +606,14 @@ public class ComBot {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Get the ComBot logger
+	 * @return The logger
+	 */
+	public Logger getLogger() {
+		return this.logger;
 	}
 
 	/**
