@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -16,17 +19,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
 import javax.security.auth.login.LoginException;
 
+import org.json.JSONObject;
+
 import com.mdc.combot.command.Command;
+import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.PluginInfoCommand;
 import com.mdc.combot.command.PluginListCommand;
-import com.mdc.combot.command.PluginAddCommand;
 import com.mdc.combot.command.RestartCommand;
 import com.mdc.combot.command.ShutdownCommand;
 import com.mdc.combot.permissions.DefaultPermissionManager;
@@ -55,18 +66,21 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 public class ComBot {
 
 	private final String botToken;
-	private final String version = "1.1.1";
-	private JDA jdaInstance;
-	private Set<Command> commands;
-	private Map<BotPlugin,Map<String,String>> plugins;
-	private Config config;
-	private Map<String, Config> multiserverConfig;
-	private PermissionsInstance perms;
-	private Map<String,PermissionsInstance> multiserverPerms;
+	private final String version = "1.2.0";
 	private boolean multiServer;
+	private Map<BotPlugin,Map<String,String>> plugins;
+	private Map<String, Config> multiserverConfig;
+	private Map<String,PermissionsInstance> multiserverPerms;
+	private Set<Command> commands;
+	private Config config;
+	private PermissionsInstance perms;
 	private DefaultCommandListener cmdListener;
 	private Logger logger;
 	private ClassLoader previousLoader;
+	private ScheduledExecutorService scheduler;
+	private JDA jdaInstance;
+	private ScheduledFuture<?> usageStatsTask;
+	private Set<String> guilds;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
@@ -94,10 +108,39 @@ public class ComBot {
 			this.multiserverPerms = null;
 			multiServer = false;
 		}
+		
+		//Arbitrary size
+		scheduler = Executors.newScheduledThreadPool(4);
+		
 		logger = Logger.getLogger("ComBot");
 		previousLoader = null;
+		guilds = new HashSet<String>();
 	}
 	
+	/**
+	 * Get the Bot Scheduler.
+	 * @return The default scheduler which ComBot uses.
+	 */
+	public ScheduledExecutorService getScheduler() {
+		return this.scheduler;
+	}
+
+	/**
+	 * Schedule a task for execution after a delay in milliseconds.
+	 * @param task The task to execute
+	 * @param delayInMS The delay in milliseconds
+	 * @return The future task, or null if it is unable to be scheduled.
+	 */
+	public ScheduledFuture<?> scheduleTask(Runnable task, long delayInMS) {
+		try {
+			return scheduler.schedule(task, delayInMS, TimeUnit.MILLISECONDS);
+		} catch (NullPointerException e) {
+			logger.log(Level.WARNING, "Failed to schedule task", e);
+		} catch (RejectedExecutionException e) {
+			logger.log(Level.WARNING, "Failed to schedule task", e);
+		}
+		return null;
+	}
 
 	/**
 	 * Get whether the bot has multiserver config enabled
@@ -334,6 +377,7 @@ public class ComBot {
 	 * 
 	 * @return The version of this ComBot instance
 	 */
+	@Deprecated
 	public String getVersion() {
 		return this.version;
 	}
@@ -365,6 +409,7 @@ public class ComBot {
 			BotAlreadyRunningException {
 		login();
 		loadPlugins();
+		findGuilds();
 		if(this.multiServer) {
 			checkNewGuilds();
 			for(String guildId : this.multiserverConfig.keySet()) {
@@ -377,6 +422,79 @@ public class ComBot {
 			if (Boolean.parseBoolean(config.get("enable-startup-message"))) {
 				sendMessage(config.get("startup-message"));
 			}
+		}
+		if(config.get("send-stats") == null || config.get("send-stats").equalsIgnoreCase("true")) {
+			usageStatsStart();
+		}
+	}
+	
+	private void findGuilds() {
+		for(Guild g : getJDA().getGuilds()) {
+			this.guilds.add(g.getId());
+		}
+	}
+	
+	private void usageStatsStart() {
+		this.usageStatsTask = getScheduler().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				//refresh stats
+				if(guilds != null && guilds.size() != 0) {
+					int guildCount = guilds.size();
+					int[] memberCounts = new int[guildCount];
+					int counter = 0;
+					for(String s : guilds) {
+						memberCounts[counter] = getJDA().getGuildById(s).getMembers().size();
+						counter++;
+					}
+					int pluginCount = plugins.size();
+					String uniqueKey;
+					try {
+						uniqueKey = InetAddress.getLocalHost().toString() + "@" + System.getProperty("user.name");//This has to be pretty unique right
+						uniqueKey = uniqueKey.replace(".", "_");
+					} catch (UnknownHostException e) {
+						logger.log(Level.WARNING, "Couldn't resolve IP for usage unique key", e);
+						return;
+					}
+					JSONObject toSend = new JSONObject();
+					toSend.append("guildCount", guildCount);
+					toSend.append("memberCounts", memberCounts);
+					toSend.append("pluginCount", pluginCount);
+					toSend.append("key", uniqueKey);
+					try {
+						logger.info("Start stats request");
+						byte[] bytesToSend = toSend.toString().replace('/', '-').replace("\\","--").getBytes();
+						int len = bytesToSend.length;
+						URL reqURL = new URL("https://us-central1-plugin-combot.cloudfunctions.net/onStatUpdate");
+						HttpURLConnection connection = (HttpURLConnection)reqURL.openConnection();
+						connection.setDoOutput(true);
+						logger.info("Connecting");
+						connection.setFixedLengthStreamingMode(len);
+						connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+						connection.connect();
+						logger.info("Connected");
+						connection.getOutputStream().write(bytesToSend);
+						connection.getOutputStream().flush();
+						logger.info("Wrote bytes");
+						//connection.getOutputStream().flush();
+						connection.disconnect();
+						logger.info("Done! -- Disconnected");
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+						logger.warning("Malformed URL for stats...?");
+					} catch (IOException e) {
+						e.printStackTrace();
+						logger.log(Level.WARNING, "Couldn't write request", e);
+					}
+				} 
+			}
+		}, 0	, 298, TimeUnit.SECONDS);
+	}
+	
+	private void usageStatsEnd() {
+		if(this.usageStatsTask != null) {
+			this.usageStatsTask.cancel(false);
+			this.usageStatsTask = null;
 		}
 	}
 	
@@ -508,9 +626,12 @@ public class ComBot {
 	 */
 	public void shutdown() {
 		logger.info("Shutdown started");
+		usageStatsEnd();
 		unloadPlugins();
 		jdaInstance.removeEventListener(jdaInstance.getRegisteredListeners());
 		jdaInstance.shutdown();
+		scheduler.shutdownNow();
+		logger.info("Scheduler shutdown");
 		jdaInstance = null;
 		ComBot.setBot(null);
 		Thread.currentThread().setContextClassLoader(previousLoader);
@@ -572,6 +693,14 @@ public class ComBot {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Get the ComBot logger
+	 * @return The logger
+	 */
+	public Logger getLogger() {
+		return this.logger;
 	}
 
 	/**

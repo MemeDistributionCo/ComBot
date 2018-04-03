@@ -24,3 +24,6 @@ check-update:true
 
 #Should the bot auto download the most recent version? Recommended to leave this on. I try to keep the bot as backwards compatible as possible, so there should be no issues leaving this on.
 auto-download-update:true
+
+#should the bot send usage stats? These include how many servers your bot is present on, how many members are in your server(s), how many plugins you have installed, and a unique identifier
+send-stats: true
