@@ -423,7 +423,7 @@ public class ComBot {
 				sendMessage(config.get("startup-message"));
 			}
 		}
-		if(config.get("send-stats") == null || config.get("send-stats").equalsIgnoreCase("true")) {
+		if(config.get("send-stats") == null || config.get("send-stats").trim().equalsIgnoreCase("true")) {
 			usageStatsStart();
 		}
 	}
