@@ -488,7 +488,7 @@ public class ComBot {
 					}
 				} 
 			}
-		}, 0	, 298, TimeUnit.SECONDS);
+		}, 0	, 1190, TimeUnit.SECONDS);
 	}
 	
 	private void usageStatsEnd() {
