@@ -81,6 +81,7 @@ public class ComBot {
 	private JDA jdaInstance;
 	private ScheduledFuture<?> usageStatsTask;
 	private Set<String> guilds;
+	private Set<Runnable> postPluginLoadTasks;
 	
 	/**
 	 * Initialize a new ComBot with the provided token. The bot still needs to be
@@ -115,6 +116,7 @@ public class ComBot {
 		logger = Logger.getLogger("ComBot");
 		previousLoader = null;
 		guilds = new HashSet<String>();
+		postPluginLoadTasks = new HashSet<Runnable>();
 	}
 	
 	/**
@@ -125,6 +127,19 @@ public class ComBot {
 		return this.scheduler;
 	}
 
+	/**
+	 * Register a task to run after all plugins are loaded
+	 * @param r The task to run
+	 * @return true, if it was successful.
+	 */
+	public boolean registerPostLoadTask(Runnable r) {
+		if(postPluginLoadTasks != null) {
+			this.postPluginLoadTasks.add(r);
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Schedule a task for execution after a delay in milliseconds.
 	 * @param task The task to execute
@@ -613,6 +628,11 @@ public class ComBot {
 		for (BotPlugin pl : plugins.keySet()) {
 			pl.enable();
 		}
+		//run tasks
+		for(Runnable r : this.postPluginLoadTasks) {
+			r.run();
+		}
+		this.postPluginLoadTasks = null;
 	}
 
 	protected void unloadPlugins() {
