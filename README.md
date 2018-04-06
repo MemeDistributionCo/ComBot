@@ -18,6 +18,7 @@ Get the launcher [here](https://github.com/MemeDistributionCo/ComBot/releases) a
 - Users can create and distribute plugins for public use
 - Built in permission system which binds permissions to users and roles. Replaceable by other plugins.
 - Restart and Shutdown bot from Discord
+- Add plugins through discord
 - Configuration file
 - Auto Updating: The bot updates itself
 
@@ -27,9 +28,12 @@ Get the launcher [here](https://github.com/MemeDistributionCo/ComBot/releases) a
 ## Commands
 - `~restart`
 - `~shutdown`
+- `~plugins`
+- `~plinfo`
+- `~addplugin`
 
 ## Docs
-[Docs v1.1.0](https://memedistributionco.github.io/docs/ComBot/v1.1.0/index.html)
+[Docs v1.3.2](https://memedistributionco.github.io/docs/ComBot/v1.3.2/index.html)
 
 ## How to add a plugin:
 
