@@ -1,12 +1,10 @@
 package com.mdc.combot.command;
 
-import java.awt.Color;
 import java.util.Map;
 
 import com.mdc.combot.ComBot;
 import com.mdc.combot.plugin.BotPlugin;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class PluginListCommand implements Command {
@@ -18,31 +16,20 @@ public class PluginListCommand implements Command {
 
 	@Override
 	public void called(ComBot bot, MessageReceivedEvent e) {
-		if(bot.memberHasPerm("bot.plugins.list", e.getMember())) {
-			Map<BotPlugin, Map<String,String>> plugins = bot.getPluginMap();
-			EmbedBuilder eb = new EmbedBuilder().setTitle("ComBot Installed Plugins List").setColor(Color.red);
-			for(BotPlugin pl : plugins.keySet()) {
-				String name, version, author;
-				if(plugins.get(pl).get("name") == null || plugins.get(pl).get("name").equals("")) {
-					name = plugins.get(pl).get("main").substring(plugins.get(pl).get("main").lastIndexOf('.')+1);
+		if (bot.memberHasPerm("bot.plugins.list", e.getMember())) {
+			Map<BotPlugin, Map<String, String>> plMap = bot.getPluginMap();
+			String finMsg = "Simple Plugin List: \n";
+			int counter = 1;
+			for (Map<String, String> infoMap : plMap.values()) {
+				if (infoMap.get("name") != null) {
+					finMsg += "**" + counter + "**. " + infoMap.get("name") + "\n";
 				} else {
-					name = plugins.get(pl).get("name");
+					finMsg += "**" + counter + "**. " + infoMap.get("main").substring(infoMap.get("main").lastIndexOf('.') + 1)
+							+ "\n";
 				}
-				
-				version = plugins.get(pl).get("version");
-				author = plugins.get(pl).get("author");
-				
-				if(version == null || author.equals("")) version = "Unspecified Version";
-				if(author == null || version.equals("")) author = "Unkown Author";
-				//String toAdd = name + " version " + version + " by " + author;
-				//toAdd = toAdd.replace("\n","").replace("\t", "");
-				eb.addField("Plugin", name, true);
-				eb.addField("Version", version, true);
-				eb.addField("Author", author, true);
-				eb.addBlankField(false);
+				counter++;
 			}
-			e.getTextChannel().sendMessage(eb.build()).queue();
-			
+			e.getTextChannel().sendMessage(finMsg).queue();
 		}
 	}
 
