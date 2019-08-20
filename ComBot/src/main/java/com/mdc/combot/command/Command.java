@@ -2,7 +2,7 @@ package com.mdc.combot.command;
 
 import com.mdc.combot.ComBot;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * An interface for all commands

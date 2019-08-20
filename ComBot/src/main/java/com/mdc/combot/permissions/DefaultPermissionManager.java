@@ -20,8 +20,8 @@ import org.json.JSONObject;
 
 import com.mdc.combot.util.Util;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 
 public class DefaultPermissionManager implements PermissionsInstance {
 

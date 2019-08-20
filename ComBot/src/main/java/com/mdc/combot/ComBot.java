@@ -47,14 +47,14 @@ import com.mdc.combot.util.Config;
 import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
 
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
 
 /**
  * ComBot class. The purpose of the ComBot, or <em>Community Bot</em>, is to be
@@ -660,7 +660,7 @@ public class ComBot {
 	
 	private void login() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException,
 			BotAlreadyRunningException {
-		jdaInstance = new JDABuilder(AccountType.BOT).setToken(botToken).buildBlocking();
+		jdaInstance = new JDABuilder(AccountType.BOT).setToken(botToken).build().awaitReady();
 		if (jdaInstance != null) {
 			cmdListener = new DefaultCommandListener(this);
 			jdaInstance.addEventListener(cmdListener);

@@ -18,7 +18,7 @@ import com.mdc.combot.util.Util;
 import com.mdc.combot.util.exception.BotAlreadyRunningException;
 import com.mdc.combot.util.exception.TokenNotFoundException;
 
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
 
 public class BotLauncher {
 

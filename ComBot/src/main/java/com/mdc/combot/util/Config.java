@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class Config {
 

@@ -1,6 +1,6 @@
 package com.mdc.combot.permissions;
 
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.api.entities.Member;
 
 /**
  * An interface for permission management. Note: Permissions are only worth what you make them. If you don't check for permissions, they might as well not exist. The purpose of this class

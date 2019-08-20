@@ -5,7 +5,7 @@ import java.util.Map;
 import com.mdc.combot.ComBot;
 import com.mdc.combot.plugin.BotPlugin;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PluginListCommand implements Command {
 

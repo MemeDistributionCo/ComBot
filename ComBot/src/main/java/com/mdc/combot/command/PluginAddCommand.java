@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 import com.mdc.combot.ComBot;
 import com.mdc.combot.util.Util;
 
-import net.dv8tion.jda.core.entities.Message.Attachment;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Message.Attachment;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PluginAddCommand implements Command {
 
@@ -41,7 +41,7 @@ public class PluginAddCommand implements Command {
 					for(Attachment a : toDownload) {
 						File plFile = new File(Util.PLUGIN_DIR_PATH + File.separatorChar + a.getFileName());
 						Logger.getLogger("ComBot").info("Downloading: " + a.getFileName());
-						a.download(plFile);
+						a.downloadToFile(plFile);
 						e.getTextChannel().sendMessage("Added " + a.getFileName() + " to plugins folder").queue();
 						Logger.getLogger("ComBot").info("Donwload complete: " + a.getFileName());
 					}

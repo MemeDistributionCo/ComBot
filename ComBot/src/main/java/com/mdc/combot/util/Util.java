@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,12 @@ import com.mdc.combot.ComBot;
 import com.mdc.combot.command.Command;
 import com.mdc.combot.util.exception.TokenNotFoundException;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.managers.GuildController;
-import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 /**
  * Utility class for bot related things
@@ -125,9 +125,10 @@ public class Util {
 	 * @return A rest action which needs to be <em>completed</em>
 	 */
 	public static AuditableRestAction<Void> addRolesToMember(Guild g, Member mem, String roleName) {
-		GuildController gControl = new GuildController(g);
 		List<Role> r = g.getRolesByName(roleName, true);
-		return gControl.addRolesToMember(mem, r);
+		List<Role> memRoles = new ArrayList<Role>(mem.getRoles());
+		r.addAll(memRoles);
+		return g.modifyMemberRoles(mem, r);
 	}
 	
 	/**
@@ -138,9 +139,10 @@ public class Util {
 	 * @return A rest action which needs to me <em>completed</em>
 	 */
 	public static AuditableRestAction<Void> removeRolesFromMember(Guild g, Member mem, String roleName) {
-		GuildController gControl = new GuildController(g);
 		List<Role> r = g.getRolesByName(roleName, true);
-		return gControl.removeRolesFromMember(mem, r);
+		List<Role> memRoles = new ArrayList<>(mem.getRoles());
+		memRoles.removeAll(r);
+		return g.modifyMemberRoles(mem, memRoles);
 	}
 
 	
