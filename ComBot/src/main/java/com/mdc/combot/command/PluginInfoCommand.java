@@ -40,6 +40,14 @@ public class PluginInfoCommand implements Command {
 					} else {
 						e.getTextChannel().sendMessage(pluginName + ":\n" + info).queue();
 					}
+					String extraMsg = "";
+					
+					for(String tag : pluginData.keySet()) {
+						if(tag.equalsIgnoreCase("main") || tag.equalsIgnoreCase("info")) continue;
+						extraMsg+="**" + tag + "**: " + pluginData.get(tag) + "\n";
+					}
+					e.getTextChannel().sendMessage(extraMsg).queue();
+					
 				} else {
 					e.getTextChannel().sendMessage("Couldn't find a plugin with that name.").queue();
 				}

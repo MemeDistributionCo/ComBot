@@ -13,12 +13,15 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.mdc.combot.ComBot;
+import com.mdc.combot.command.Command;
 import com.mdc.combot.util.exception.TokenNotFoundException;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.managers.GuildController;
 import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
 
@@ -43,39 +46,6 @@ public class Util {
 	
 	public final static String PLUGIN_DIR_PATH = BOT_PATH + File.separatorChar + "plugins";
 	
-	/**
-	 * Return whether the user has the "sd" role (Server Developer)
-	 * @param a The member
-	 * @return true or false
-	 */
-	public static boolean isUserSD(Member a) {
-		for(Role r : a.getRoles()) {
-			if (r.getName().equalsIgnoreCase("sd")) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns the Member from the Guild provided, assuming the user exists in it.
-	 * @param u The user
-	 * @param g The guild
-	 * @return The member, or null
-	 */
-	public static Member userToMember(User u, Guild g) {
-		return g.getMember(u);
-	}
-	
-	/**
-	 * Compare two members to see if they are the same.
-	 * @param m1 Member 1
-	 * @param m2 Member 2
-	 * @return true if they are the same member
-	 */
-	public static boolean sameMember(Member m1, Member m2) {
-		return Util.sameUser(m1.getUser(), m2.getUser());
-	}
 	
 	/**
 	 * Join together strings in an array while adding a space in between each element
@@ -92,17 +62,7 @@ public class Util {
 		}
 		return fin;
 	}
-	
-	/**
-	 * Retrieve a member from a guild by their id.
-	 * @param id User id
-	 * @param g Server instance
-	 * @return The Member if it exists
-	 */
-	public static Member getMemberById(long id, Guild g) {
-		return g.getMemberById(id);
-	}
-	
+
 	/**
 	 * Check whether two users are the same
 	 * @param u1 User 1
@@ -191,8 +151,7 @@ public class Util {
 	 * @return The User's display name
 	 */
 	public static String getUserDisplayName(User u, Guild g) {
-		Member m = Util.userToMember(u, g);
-		return getUserDisplayName(m);
+		return getUserDisplayName(g.getMember(u));
 	}
 	
 	/**
@@ -213,7 +172,7 @@ public class Util {
 	 */
 
 	public static boolean userHasRole(User u, String role, Guild g) {
-		Member m = Util.userToMember(u, g);
+		Member m = g.getMember(u);
 		for(Role r : m.getRoles()) {
 			if(r.getName().equalsIgnoreCase(role)) {
 				return true;
@@ -222,6 +181,11 @@ public class Util {
 		return false;
 	}
 	
+	/**
+	 * Turn string array into a map, same format as if from file
+	 * @param lines Lines
+	 * @return
+	 */
 	public static Map<String,String> mapFromString(String[] lines) {
 		Map<String,String> configMap = new HashMap<String,String>();
 		
@@ -237,6 +201,38 @@ public class Util {
 		
 		return configMap;
 	}
+	
+	/**
+	 * Get the message from a command, excluding the command prefix and label
+	 * @param g The which the command was called from
+	 * @param cmdLabel The command label
+	 * @param rawMsg The raw msg content
+	 * @return The raw msg without prefix or label
+	 */
+	public static String getMsgFromCommand(Guild g, String cmdLabel, String rawMsg) {
+		return rawMsg.replace(ComBot.getBot().getCommandPrefix(g) + cmdLabel, "").trim();
+	}
+	
+	/**
+	 * Get the message from a command, excluding the command prefix and label
+	 * @param c The command object
+	 * @param e The message event
+	 * @return The raw msg without prefix or label
+	 */
+	public static String getMsgFromCommand(Command c, MessageReceivedEvent e) {
+		return Util.getMsgFromCommand(e.getGuild(), c.getLabel(), e.getMessage().getContentRaw());
+	}
+	
+	/**
+	 * Get the command arguments from a given command
+	 * @param c The command object
+	 * @param e The message received
+	 * @return Command arguments (separated by space)
+	 */
+	public static String[] getArgsFromCommand(Command c, MessageReceivedEvent e) {
+		return Util.getMsgFromCommand(c, e).split(" ");
+	}
+	
 	
 	/**
 	 * Get a map from a file following the simple config combot style.
